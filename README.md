@@ -1,0 +1,48 @@
+# n8n-nodes-pictomancer
+
+[n8n](https://n8n.io) community node for [Pictomancer.ai](https://pictomancer.ai) - image optimization in your workflows: resize, compress, convert (JPEG/PNG/WebP/TIFF/GIF/AVIF), crop, and multi-step pipelines.
+
+## Install
+
+In n8n: **Settings → Community Nodes → Install** and enter `n8n-nodes-pictomancer`.
+
+Or with npm (self-hosted):
+
+```bash
+npm install n8n-nodes-pictomancer
+```
+
+## Credentials
+
+Create a **Pictomancer API** credential:
+
+- **API Key** - Bearer token from [app.pictomancer.ai](https://app.pictomancer.ai). Optional: without it you are on the free tier (50 requests per IP).
+- **Base URL** - defaults to `https://api.pictomancer.ai`.
+
+## Operations
+
+| Operation | Input | Output |
+|-----------|-------|--------|
+| Analyze | URL or binary | JSON metadata (`size_bytes`) |
+| Resize | URL or binary | Binary image |
+| Compress | URL or binary | Binary image |
+| Convert | URL or binary | Binary image |
+| Crop | URL or binary | Binary image |
+| Pipeline | URL or binary | Binary image |
+
+- **Input Type** switches between a source URL and binary data from the previous node (sent as a `data:` URI).
+- Image operations output binary data (default property `data`) plus `size_bytes`, `mime_type`, and `billed` in the item JSON. `billed` is `false` when compress produced no size gain - those requests are free.
+- **Options** exposes quality (`q`), output format, metadata strip, lossless, and the AVIF `effort` knob.
+- **Pipeline** takes a JSON list of steps, e.g. `[{ "type": "resize", "params": { "scale": "0.5" } }, { "type": "convert", "params": { "format": "webp" } }]`.
+
+## Development
+
+```bash
+npm install
+npm test
+npm run build
+```
+
+## License
+
+MIT

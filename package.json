@@ -1,0 +1,51 @@
+{
+  "name": "n8n-nodes-pictomancer",
+  "version": "0.1.0",
+  "description": "n8n community node for Pictomancer.ai - image optimization (resize, compress, convert, crop, pipeline)",
+  "license": "MIT",
+  "homepage": "https://pictomancer.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pictomancer/n8n-nodes-pictomancer.git"
+  },
+  "main": "index.js",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "n8n-community-node-package",
+    "image",
+    "optimization",
+    "resize",
+    "compress",
+    "avif",
+    "webp",
+    "pictomancer"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/PictomancerApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Pictomancer/Pictomancer.node.js"
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').copyFileSync('nodes/Pictomancer/pictomancer.svg','dist/nodes/Pictomancer/pictomancer.svg')\"",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.130",
+    "n8n-workflow": "^1.70.0",
+    "typescript": "^5.4.0",
+    "vitest": "^3.0.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
