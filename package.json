@@ -23,7 +23,7 @@
     "pictomancer"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20.15"
   },
   "n8n": {
     "n8nNodesApiVersion": 1,
