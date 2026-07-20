@@ -44,7 +44,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/node": "^18.19.130",
+    "@types/node": "^26.1.1",
     "n8n-workflow": "^1.70.0",
     "typescript": "^5.4.0",
     "vitest": "^3.0.0"
