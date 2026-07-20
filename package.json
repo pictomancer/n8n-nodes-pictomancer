@@ -1,8 +1,12 @@
 {
   "name": "n8n-nodes-pictomancer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "n8n community node for Pictomancer.ai - image optimization (resize, compress, convert, crop, pipeline)",
   "license": "MIT",
+  "author": {
+    "name": "Pictomancer.ai",
+    "email": "webmaster+n8n@pictomancer.ai"
+  },
   "homepage": "https://pictomancer.ai",
   "repository": {
     "type": "git",
