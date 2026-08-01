@@ -18,6 +18,7 @@ export class Pictomancer implements INodeType {
     version: 1,
     subtitle: '={{$parameter["operation"]}}',
     description: "Optimize images with Pictomancer.ai",
+    usableAsTool: true,
     defaults: { name: "Pictomancer" },
     inputs: ["main" as NodeConnectionType],
     outputs: ["main" as NodeConnectionType],

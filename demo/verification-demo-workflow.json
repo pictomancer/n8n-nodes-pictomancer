@@ -1,0 +1,194 @@
+{
+  "name": "Pictomancer verification demo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-manual",
+      "name": "Run Demo",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-200, 500]
+    },
+    {
+      "parameters": {
+        "content": "## Pictomancer.ai demo\nOne execution covers: analyze, resize, compress (binary input), convert to AVIF, crop and pipeline.\n\nSource image: Wikimedia Commons (public domain).",
+        "width": 360,
+        "height": 140
+      },
+      "id": "note-header",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-260, 260]
+    },
+    {
+      "parameters": {
+        "operation": "analyze",
+        "inputType": "url",
+        "source": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png"
+      },
+      "id": "op-analyze",
+      "name": "Analyze (free)",
+      "type": "n8n-nodes-pictomancer.pictomancer",
+      "typeVersion": 1,
+      "position": [120, 0]
+    },
+    {
+      "parameters": {
+        "operation": "resize",
+        "inputType": "url",
+        "source": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+        "scale": 0.5,
+        "options": {},
+        "outputBinaryPropertyName": "data"
+      },
+      "id": "op-resize",
+      "name": "Resize 50%",
+      "type": "n8n-nodes-pictomancer.pictomancer",
+      "typeVersion": 1,
+      "position": [120, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "pictomancer-demo/1.0 (webmaster@pictomancer.ai)"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "http-download",
+      "name": "Download image (binary)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [120, 400]
+    },
+    {
+      "parameters": {
+        "operation": "compress",
+        "inputType": "binary",
+        "binaryPropertyName": "data",
+        "options": {
+          "q": 80,
+          "strip": true
+        },
+        "outputBinaryPropertyName": "data"
+      },
+      "id": "op-compress",
+      "name": "Compress (binary input)",
+      "type": "n8n-nodes-pictomancer.pictomancer",
+      "typeVersion": 1,
+      "position": [400, 400]
+    },
+    {
+      "parameters": {
+        "operation": "convert",
+        "inputType": "url",
+        "source": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+        "format": "avif",
+        "options": {
+          "effort": 2
+        },
+        "outputBinaryPropertyName": "data"
+      },
+      "id": "op-convert",
+      "name": "Convert to AVIF",
+      "type": "n8n-nodes-pictomancer.pictomancer",
+      "typeVersion": 1,
+      "position": [120, 600]
+    },
+    {
+      "parameters": {
+        "operation": "crop",
+        "inputType": "url",
+        "source": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+        "x": 100,
+        "y": 100,
+        "width": 600,
+        "height": 400,
+        "outputBinaryPropertyName": "data"
+      },
+      "id": "op-crop",
+      "name": "Crop 600x400",
+      "type": "n8n-nodes-pictomancer.pictomancer",
+      "typeVersion": 1,
+      "position": [120, 800]
+    },
+    {
+      "parameters": {
+        "operation": "pipeline",
+        "inputType": "url",
+        "source": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png",
+        "pipelineOperations": "[\n  { \"type\": \"resize\", \"params\": { \"scale\": \"0.5\" } },\n  { \"type\": \"convert\", \"params\": { \"format\": \"webp\" } }\n]",
+        "outputBinaryPropertyName": "data"
+      },
+      "id": "op-pipeline",
+      "name": "Pipeline resize+webp",
+      "type": "n8n-nodes-pictomancer.pictomancer",
+      "typeVersion": 1,
+      "position": [120, 1000]
+    },
+    {
+      "parameters": {
+        "content": "## UX: error handling\nRun this node alone (bad URL) to show the readable n8n error.",
+        "width": 300,
+        "height": 100
+      },
+      "id": "note-error",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [640, 1160]
+    },
+    {
+      "parameters": {
+        "operation": "compress",
+        "inputType": "url",
+        "source": "https://pictomancer.ai/not-an-image",
+        "options": {},
+        "outputBinaryPropertyName": "data"
+      },
+      "id": "op-error",
+      "name": "Error demo (bad URL)",
+      "type": "n8n-nodes-pictomancer.pictomancer",
+      "typeVersion": 1,
+      "position": [680, 1280]
+    }
+  ],
+  "connections": {
+    "Run Demo": {
+      "main": [
+        [
+          { "node": "Analyze (free)", "type": "main", "index": 0 },
+          { "node": "Resize 50%", "type": "main", "index": 0 },
+          { "node": "Download image (binary)", "type": "main", "index": 0 },
+          { "node": "Convert to AVIF", "type": "main", "index": 0 },
+          { "node": "Crop 600x400", "type": "main", "index": 0 },
+          { "node": "Pipeline resize+webp", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Download image (binary)": {
+      "main": [
+        [
+          { "node": "Compress (binary input)", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
