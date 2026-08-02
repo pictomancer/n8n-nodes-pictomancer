@@ -33,6 +33,7 @@ Create a **Pictomancer API** credential:
 - **Input Type** switches between a source URL and binary data from the previous node (sent as a `data:` URI).
 - Image operations output binary data (default property `data`) plus `size_bytes`, `mime_type`, and `billed` in the item JSON. `billed` is `false` when compress produced no size gain - those requests are free.
 - **Options** exposes quality (`q`), output format, metadata strip, lossless, and the AVIF `effort` knob.
+- **Quality Target (SSIM)** (compress and convert): ask for the smallest file with SSIM >= target (0-1) instead of picking a `q` value. Mutually exclusive with Quality (`q`); jpeg, webp and avif only; compress needs an explicit Output Format. When the search runs, the item JSON also carries `quality_target`, `quality_achieved`, `quality_final_q`, and `quality_encodes`.
 - **Pipeline** takes a JSON list of steps, e.g. `[{ "type": "resize", "params": { "scale": "0.5" } }, { "type": "convert", "params": { "format": "webp" } }]`.
 
 ## Development

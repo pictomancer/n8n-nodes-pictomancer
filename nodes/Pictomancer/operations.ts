@@ -41,3 +41,18 @@ export function buildOperationRequest(
 export function toDataUri(mimeType: string, base64: string): string {
   return `data:${mimeType};base64,${base64}`;
 }
+
+/**
+ * Map the quality search outcome headers to item JSON fields.
+ * Empty when the server ran no search (no quality_target, or untouched input).
+ */
+export function buildQualityReport(headers: Record<string, unknown>): Record<string, number> {
+  const achieved = headers["x-pictomancer-quality-achieved"];
+  if (achieved === undefined) return {};
+  return {
+    quality_target: Number(headers["x-pictomancer-quality-target"]),
+    quality_achieved: Number(achieved),
+    quality_final_q: Number(headers["x-pictomancer-quality-q-final"]),
+    quality_encodes: Number(headers["x-pictomancer-quality-encodes"]),
+  };
+}

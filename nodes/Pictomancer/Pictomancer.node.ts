@@ -7,7 +7,7 @@ import type {
 } from "n8n-workflow";
 import { NodeOperationError } from "n8n-workflow";
 
-import { buildOperationRequest, toDataUri } from "./operations";
+import { buildOperationRequest, buildQualityReport, toDataUri } from "./operations";
 
 export class Pictomancer implements INodeType {
   description: INodeTypeDescription = {
@@ -165,6 +165,16 @@ export class Pictomancer implements INodeType {
             default: 85,
           },
           {
+            displayName: "Quality Target (SSIM)",
+            name: "quality_target",
+            type: "number",
+            typeOptions: { minValue: 0, maxValue: 1, numberPrecision: 2 },
+            default: 0.95,
+            description:
+              "Smallest file with SSIM >= target (0-1). Replaces Quality (q); jpeg, webp and avif only.",
+            displayOptions: { show: { "/operation": ["compress", "convert"] } },
+          },
+          {
             displayName: "Scale X",
             name: "scale_x",
             type: "number",
@@ -237,6 +247,7 @@ export class Pictomancer implements INodeType {
             size_bytes: buffer.length,
             mime_type: contentType,
             billed: response.headers["x-pig-billed"] === "1",
+            ...buildQualityReport(response.headers as Record<string, unknown>),
           },
           binary: { [outputProperty]: binary },
           pairedItem: { item: i },

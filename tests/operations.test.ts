@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { buildOperationRequest, toDataUri } from "../nodes/Pictomancer/operations";
+import {
+  buildOperationRequest,
+  buildQualityReport,
+  toDataUri,
+} from "../nodes/Pictomancer/operations";
 
 const SOURCE = "https://example.com/image.jpg";
 
@@ -37,6 +41,24 @@ describe("buildOperationRequest", () => {
     expect(request.body).toEqual({ source: SOURCE, format: "avif", q: 50, effort: 2 });
   });
 
+  it("forwards quality_target on compress", () => {
+    const request = buildOperationRequest("compress", SOURCE, {
+      quality_target: 0.95,
+      format: "webp",
+    });
+
+    expect(request.body).toEqual({ source: SOURCE, quality_target: 0.95, format: "webp" });
+  });
+
+  it("forwards quality_target on convert", () => {
+    const request = buildOperationRequest("convert", SOURCE, {
+      format: "avif",
+      quality_target: 0.9,
+    });
+
+    expect(request.body).toEqual({ source: SOURCE, format: "avif", quality_target: 0.9 });
+  });
+
   it("maps crop coordinates", () => {
     const request = buildOperationRequest("crop", SOURCE, { x: 0, y: 0, width: 100, height: 50 });
 
@@ -65,6 +87,34 @@ describe("buildOperationRequest", () => {
 
   it("rejects unknown operations", () => {
     expect(() => buildOperationRequest("blur", SOURCE, {})).toThrow("unsupported operation: blur");
+  });
+});
+
+describe("buildQualityReport", () => {
+  it("maps quality headers to numeric item fields", () => {
+    const headers = {
+      "x-pictomancer-quality-target": "0.95",
+      "x-pictomancer-quality-achieved": "0.9530",
+      "x-pictomancer-quality-q-final": "62",
+      "x-pictomancer-quality-encodes": "5",
+    };
+
+    const report = buildQualityReport(headers);
+
+    expect(report).toEqual({
+      quality_target: 0.95,
+      quality_achieved: 0.953,
+      quality_final_q: 62,
+      quality_encodes: 5,
+    });
+  });
+
+  it("is empty when the quality headers are absent", () => {
+    const headers = { "content-type": "image/webp", "x-pig-billed": "1" };
+
+    const report = buildQualityReport(headers);
+
+    expect(report).toEqual({});
   });
 });
 
