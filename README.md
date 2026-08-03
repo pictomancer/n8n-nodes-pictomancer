@@ -34,6 +34,9 @@ Create a **Pictomancer API** credential:
 - Image operations output binary data (default property `data`) plus `size_bytes`, `mime_type`, and `billed` in the item JSON. `billed` is `false` when compress produced no size gain - those requests are free.
 - **Options** exposes quality (`q`), output format, metadata strip, lossless, and the AVIF `effort` knob.
 - **Quality Target (SSIM)** (compress and convert): ask for the smallest file with SSIM >= target (0-1) instead of picking a `q` value. Mutually exclusive with Quality (`q`); jpeg, webp and avif only; compress needs an explicit Output Format. When the search runs, the item JSON also carries `quality_target`, `quality_achieved`, `quality_final_q`, and `quality_encodes`.
+- **Crop Mode** (crop) switches between three mutually exclusive modes: **Manual** (X/Y/Width/Height), **Smart** (Gravity picks the window; needs Width/Height), and **Trim** (removes a uniform background border; Threshold defaults to 10). When a crop actually trims, the response carries `X-Pictomancer-Trim-Left/-Top/-Width/-Height` headers.
+- **Fill Width / Fill Height / Gravity** (resize, under Options): set both to resize and smart-crop to exact dimensions in one call instead of Scale/Scale X/Scale Y.
+- **Autorot** (resize, compress, convert, crop, under Options): apply EXIF orientation before processing.
 - **Pipeline** takes a JSON list of steps, e.g. `[{ "type": "resize", "params": { "scale": "0.5" } }, { "type": "convert", "params": { "format": "webp" } }]`.
 
 ## Development

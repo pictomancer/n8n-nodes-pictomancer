@@ -7,7 +7,8 @@ import type {
 } from "n8n-workflow";
 import { NodeOperationError } from "n8n-workflow";
 
-import { buildOperationRequest, buildQualityReport, toDataUri } from "./operations";
+import { buildCropParams, buildOperationRequest, buildQualityReport, toDataUri } from "./operations";
+import type { CropMode } from "./operations";
 
 export class Pictomancer implements INodeType {
   description: INodeTypeDescription = {
@@ -91,32 +92,65 @@ export class Pictomancer implements INodeType {
         displayOptions: { show: { operation: ["convert"] } },
       },
       {
+        displayName: "Crop Mode",
+        name: "cropMode",
+        type: "options",
+        noDataExpression: true,
+        default: "manual",
+        options: [
+          { name: "Manual", value: "manual", description: "Exact rectangle via X/Y/Width/Height" },
+          { name: "Smart", value: "smart", description: "Gravity picks the window automatically" },
+          { name: "Trim", value: "trim", description: "Removes a uniform background border" },
+        ],
+        displayOptions: { show: { operation: ["crop"] } },
+      },
+      {
         displayName: "X",
         name: "x",
         type: "number",
         default: 0,
-        displayOptions: { show: { operation: ["crop"] } },
+        displayOptions: { show: { operation: ["crop"], cropMode: ["manual"] } },
       },
       {
         displayName: "Y",
         name: "y",
         type: "number",
         default: 0,
-        displayOptions: { show: { operation: ["crop"] } },
+        displayOptions: { show: { operation: ["crop"], cropMode: ["manual"] } },
       },
       {
         displayName: "Width",
         name: "width",
         type: "number",
         default: 100,
-        displayOptions: { show: { operation: ["crop"] } },
+        displayOptions: { show: { operation: ["crop"], cropMode: ["manual", "smart"] } },
       },
       {
         displayName: "Height",
         name: "height",
         type: "number",
         default: 100,
-        displayOptions: { show: { operation: ["crop"] } },
+        displayOptions: { show: { operation: ["crop"], cropMode: ["manual", "smart"] } },
+      },
+      {
+        displayName: "Gravity",
+        name: "gravity",
+        type: "options",
+        default: "attention",
+        options: [
+          { name: "Attention", value: "attention" },
+          { name: "Entropy", value: "entropy" },
+          { name: "Centre", value: "centre" },
+        ],
+        displayOptions: { show: { operation: ["crop"], cropMode: ["smart"] } },
+      },
+      {
+        displayName: "Threshold",
+        name: "threshold",
+        type: "number",
+        default: 10,
+        description: "Trim sensitivity (must be positive; default 10.0 server-side)",
+        displayOptions: { show: { operation: ["crop"], cropMode: ["trim"] } },
       },
       {
         displayName: "Operations (JSON)",
@@ -133,8 +167,16 @@ export class Pictomancer implements INodeType {
         type: "collection",
         placeholder: "Add option",
         default: {},
-        displayOptions: { show: { operation: ["resize", "compress", "convert"] } },
+        displayOptions: { show: { operation: ["resize", "compress", "convert", "crop"] } },
         options: [
+          {
+            displayName: "Autorot",
+            name: "autorot",
+            type: "boolean",
+            default: false,
+            description: "Whether to apply EXIF orientation before processing",
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert", "crop"] } },
+          },
           {
             displayName: "Effort (AVIF)",
             name: "effort",
@@ -142,6 +184,37 @@ export class Pictomancer implements INodeType {
             typeOptions: { minValue: 0, maxValue: 9 },
             default: 2,
             description: "AV1 encoder CPU effort (0-9). Higher = smaller files, slower.",
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
+          },
+          {
+            displayName: "Fill Height",
+            name: "height",
+            type: "number",
+            default: 100,
+            description: "Fill mode: target height in pixels. Requires Fill Width.",
+            displayOptions: { show: { "/operation": ["resize"] } },
+          },
+          {
+            displayName: "Fill Width",
+            name: "width",
+            type: "number",
+            default: 100,
+            description:
+              "Fill mode: resize and smart-crop to exact dimensions in one call. Requires Fill Height; excludes Scale/Scale X/Scale Y.",
+            displayOptions: { show: { "/operation": ["resize"] } },
+          },
+          {
+            displayName: "Gravity",
+            name: "gravity",
+            type: "options",
+            default: "attention",
+            options: [
+              { name: "Attention", value: "attention" },
+              { name: "Entropy", value: "entropy" },
+              { name: "Centre", value: "centre" },
+            ],
+            description: "Fill-mode smart-crop strategy. Only valid with Fill Width + Fill Height.",
+            displayOptions: { show: { "/operation": ["resize"] } },
           },
           {
             displayName: "Lossless",
@@ -149,6 +222,7 @@ export class Pictomancer implements INodeType {
             type: "boolean",
             default: false,
             description: "Whether to encode losslessly (WebP and AVIF)",
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
           },
           {
             displayName: "Output Format",
@@ -156,6 +230,7 @@ export class Pictomancer implements INodeType {
             type: "string",
             default: "",
             description: "Output format for resize/compress (jpeg, png, webp, tiff, gif, avif)",
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
           },
           {
             displayName: "Quality",
@@ -163,6 +238,7 @@ export class Pictomancer implements INodeType {
             type: "number",
             typeOptions: { minValue: 1, maxValue: 100 },
             default: 85,
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
           },
           {
             displayName: "Quality Target (SSIM)",
@@ -180,6 +256,7 @@ export class Pictomancer implements INodeType {
             type: "number",
             default: 0,
             description: "Horizontal scale factor (overrides Scale together with Scale Y)",
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
           },
           {
             displayName: "Scale Y",
@@ -187,12 +264,14 @@ export class Pictomancer implements INodeType {
             type: "number",
             default: 0,
             description: "Vertical scale factor (overrides Scale together with Scale X)",
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
           },
           {
             displayName: "Strip Metadata",
             name: "strip",
             type: "boolean",
             default: false,
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
           },
         ],
       },
@@ -287,12 +366,16 @@ function collectParams(
   if (operation === "analyze") return {};
 
   if (operation === "crop") {
-    return {
-      x: ctx.getNodeParameter("x", itemIndex),
-      y: ctx.getNodeParameter("y", itemIndex),
-      width: ctx.getNodeParameter("width", itemIndex),
-      height: ctx.getNodeParameter("height", itemIndex),
-    };
+    const mode = ctx.getNodeParameter("cropMode", itemIndex) as CropMode;
+    const cropParams = buildCropParams(mode, {
+      x: ctx.getNodeParameter("x", itemIndex, 0) as number,
+      y: ctx.getNodeParameter("y", itemIndex, 0) as number,
+      width: ctx.getNodeParameter("width", itemIndex, 0) as number,
+      height: ctx.getNodeParameter("height", itemIndex, 0) as number,
+      gravity: ctx.getNodeParameter("gravity", itemIndex, "attention") as string,
+      threshold: ctx.getNodeParameter("threshold", itemIndex, 10) as number,
+    });
+    return { ...cropParams, ...(ctx.getNodeParameter("options", itemIndex, {}) as Record<string, unknown>) };
   }
 
   if (operation === "pipeline") {
@@ -305,14 +388,16 @@ function collectParams(
     ...(ctx.getNodeParameter("options", itemIndex, {}) as Record<string, unknown>),
   };
   if (operation === "resize") {
-    // scale_x/scale_y in Options take precedence over the plain Scale knob
-    if (!params.scale_x && !params.scale_y) {
+    // scale_x/scale_y or fill-mode width/height in Options take precedence over the plain Scale knob
+    if (!params.scale_x && !params.scale_y && !params.width && !params.height) {
       params.scale = ctx.getNodeParameter("scale", itemIndex);
     } else {
       delete params.scale;
     }
     if (!params.scale_x) delete params.scale_x;
     if (!params.scale_y) delete params.scale_y;
+    if (!params.width) delete params.width;
+    if (!params.height) delete params.height;
   }
   if (operation === "convert") {
     params.format = ctx.getNodeParameter("format", itemIndex);

@@ -37,6 +37,28 @@ export function buildOperationRequest(
   return { path, body };
 }
 
+export type CropMode = "manual" | "smart" | "trim";
+
+export interface CropFields {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  gravity: string;
+  threshold: number;
+}
+
+/** Map the Crop Mode selector + raw field values to the API's mutually exclusive crop params. */
+export function buildCropParams(mode: CropMode, fields: CropFields): Record<string, unknown> {
+  if (mode === "smart") {
+    return { width: fields.width, height: fields.height, gravity: fields.gravity };
+  }
+  if (mode === "trim") {
+    return { trim: true, threshold: fields.threshold };
+  }
+  return { x: fields.x, y: fields.y, width: fields.width, height: fields.height };
+}
+
 /** data: URI for binary inputs so any upstream item can be a source. */
 export function toDataUri(mimeType: string, base64: string): string {
   return `data:${mimeType};base64,${base64}`;

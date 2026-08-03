@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildCropParams,
   buildOperationRequest,
   buildQualityReport,
   toDataUri,
@@ -66,6 +67,22 @@ describe("buildOperationRequest", () => {
     expect(request.body).toEqual({ source: SOURCE, x: 0, y: 0, width: 100, height: 50 });
   });
 
+  it("maps resize fill mode params", () => {
+    const request = buildOperationRequest("resize", SOURCE, {
+      width: 200,
+      height: 150,
+      gravity: "entropy",
+    });
+
+    expect(request.body).toEqual({ source: SOURCE, width: 200, height: 150, gravity: "entropy" });
+  });
+
+  it("forwards autorot on every op", () => {
+    const request = buildOperationRequest("compress", SOURCE, { format: "webp", autorot: true });
+
+    expect(request.body).toEqual({ source: SOURCE, format: "webp", autorot: true });
+  });
+
   it("maps pipeline operation chains", () => {
     const operations = [{ type: "resize", params: { scale: "0.5" } }];
 
@@ -115,6 +132,26 @@ describe("buildQualityReport", () => {
     const report = buildQualityReport(headers);
 
     expect(report).toEqual({});
+  });
+});
+
+describe("buildCropParams", () => {
+  const FIELDS = { x: 10, y: 20, width: 300, height: 400, gravity: "attention", threshold: 5 };
+
+  it("manual mode sends x/y/width/height only", () => {
+    expect(buildCropParams("manual", FIELDS)).toEqual({ x: 10, y: 20, width: 300, height: 400 });
+  });
+
+  it("smart mode sends gravity and dims without x/y", () => {
+    expect(buildCropParams("smart", FIELDS)).toEqual({
+      width: 300,
+      height: 400,
+      gravity: "attention",
+    });
+  });
+
+  it("trim mode sends threshold without dims or gravity", () => {
+    expect(buildCropParams("trim", FIELDS)).toEqual({ trim: true, threshold: 5 });
   });
 });
 
