@@ -1,5 +1,6 @@
 import type {
   IAuthenticateGeneric,
+  Icon,
   ICredentialTestRequest,
   ICredentialType,
   INodeProperties,
@@ -9,6 +10,8 @@ export class PictomancerApi implements ICredentialType {
   name = "pictomancerApi";
 
   displayName = "Pictomancer API";
+
+  icon: Icon = { light: "file:pictomancer.svg", dark: "file:pictomancer-dark.svg" };
 
   documentationUrl = "https://pictomancer.ai";
 

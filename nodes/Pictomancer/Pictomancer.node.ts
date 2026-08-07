@@ -14,10 +14,10 @@ export class Pictomancer implements INodeType {
   description: INodeTypeDescription = {
     displayName: "Pictomancer",
     name: "pictomancer",
-    icon: "file:pictomancer.svg",
+    icon: { light: "file:pictomancer.svg", dark: "file:pictomancer-dark.svg" },
     group: ["transform"],
     version: 1,
-    subtitle: '={{$parameter["operation"]}}',
+    subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
     description: "Optimize images with Pictomancer.ai",
     usableAsTool: true,
     defaults: { name: "Pictomancer" },
@@ -26,11 +26,20 @@ export class Pictomancer implements INodeType {
     credentials: [{ name: "pictomancerApi", required: true }],
     properties: [
       {
+        displayName: "Resource",
+        name: "resource",
+        type: "options",
+        noDataExpression: true,
+        default: "image",
+        options: [{ name: "Image", value: "image" }],
+      },
+      {
         displayName: "Operation",
         name: "operation",
         type: "options",
         noDataExpression: true,
         default: "compress",
+        displayOptions: { show: { resource: ["image"] } },
         options: [
           { name: "Analyze", value: "analyze", action: "Analyze an image" },
           { name: "Compress", value: "compress", action: "Compress an image" },

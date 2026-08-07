@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-pictomancer",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "n8n community node for Pictomancer.ai - image optimization (resize, compress, convert, crop, pipeline)",
   "license": "MIT",
   "author": {
@@ -39,12 +39,15 @@
     ]
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').copyFileSync('nodes/Pictomancer/pictomancer.svg','dist/nodes/Pictomancer/pictomancer.svg')\"",
+    "build": "tsc -p tsconfig.build.json && node -e \"const fs=require('node:fs');for(const n of ['pictomancer.svg','pictomancer-dark.svg']){fs.copyFileSync('nodes/Pictomancer/'+n,'dist/nodes/Pictomancer/'+n);fs.copyFileSync('credentials/'+n,'dist/credentials/'+n)}\"",
+    "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@n8n/node-cli": "^0.42.2",
     "@types/node": "^18.19.130",
+    "eslint": "^9.39.5",
     "n8n-workflow": "^1.70.0",
     "typescript": "^5.4.0",
     "vitest": "^3.0.0"
