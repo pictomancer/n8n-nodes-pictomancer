@@ -187,6 +187,16 @@ export class Pictomancer implements INodeType {
             displayOptions: { show: { "/operation": ["resize", "compress", "convert", "crop"] } },
           },
           {
+            displayName: "Denoise",
+            name: "denoise",
+            type: "number",
+            typeOptions: { minValue: 1, maxValue: 3 },
+            default: 1,
+            description:
+              "Median denoise before the operation: radius 1-3 (window 3x3 to 7x7). Base price.",
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert", "crop"] } },
+          },
+          {
             displayName: "Effort (AVIF)",
             name: "effort",
             type: "number",
@@ -194,6 +204,15 @@ export class Pictomancer implements INodeType {
             default: 2,
             description: "AV1 encoder CPU effort (0-9). Higher = smaller files, slower.",
             displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
+          },
+          {
+            displayName: "Equalize",
+            name: "equalize",
+            type: "boolean",
+            default: false,
+            description:
+              "Whether to apply auto-contrast (value-channel histogram equalisation, hue and saturation preserved) before the operation",
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert", "crop"] } },
           },
           {
             displayName: "Fill Height",
@@ -274,6 +293,14 @@ export class Pictomancer implements INodeType {
             default: 0,
             description: "Vertical scale factor (overrides Scale together with Scale X)",
             displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
+          },
+          {
+            displayName: "Sharpen",
+            name: "sharpen",
+            type: "boolean",
+            default: false,
+            description: "Whether to apply an unsharp-mask sharpen after the operation",
+            displayOptions: { show: { "/operation": ["resize", "compress", "convert", "crop"] } },
           },
           {
             displayName: "Strip Metadata",

@@ -37,6 +37,9 @@ Create a **Pictomancer API** credential:
 - **Crop Mode** (crop) switches between three mutually exclusive modes: **Manual** (X/Y/Width/Height), **Smart** (Gravity picks the window; needs Width/Height), and **Trim** (removes a uniform background border; Threshold defaults to 10). When a crop actually trims, the response carries `X-Pictomancer-Trim-Left/-Top/-Width/-Height` headers.
 - **Fill Width / Fill Height / Gravity** (resize, under Options): set both to resize and smart-crop to exact dimensions in one call instead of Scale/Scale X/Scale Y.
 - **Autorot** (resize, compress, convert, crop, under Options): apply EXIF orientation before processing.
+- **Denoise** (resize, compress, convert, crop, under Options): median denoise before the operation, radius 1-3 (window 3x3 to 7x7). Base price.
+- **Equalize** (resize, compress, convert, crop, under Options): auto-contrast (value-channel histogram equalisation, hue and saturation preserved) before the operation.
+- **Sharpen** (resize, compress, convert, crop, under Options): unsharp-mask sharpen after the operation.
 - **Pipeline** takes a JSON list of steps, e.g. `[{ "type": "resize", "params": { "scale": "0.5" } }, { "type": "convert", "params": { "format": "webp" } }]`.
 
 ## Development
