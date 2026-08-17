@@ -11,6 +11,7 @@ const OPERATION_PATHS: Record<string, string> = {
   compress: "/v1/compress",
   convert: "/v1/convert",
   crop: "/v1/crop",
+  optimize_generated: "/v1/optimize_generated",
   pipeline: "/v1/pipeline",
 };
 

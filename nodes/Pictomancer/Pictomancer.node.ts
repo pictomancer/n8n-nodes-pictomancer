@@ -45,6 +45,11 @@ export class Pictomancer implements INodeType {
           { name: "Compress", value: "compress", action: "Compress an image" },
           { name: "Convert", value: "convert", action: "Convert image format" },
           { name: "Crop", value: "crop", action: "Crop an image" },
+          {
+            name: "Optimize AI-Generated",
+            value: "optimize_generated",
+            action: "Optimize an AI generated image for the web",
+          },
           { name: "Pipeline", value: "pipeline", action: "Run an operation pipeline" },
           { name: "Resize", value: "resize", action: "Resize an image" },
         ],
@@ -99,6 +104,28 @@ export class Pictomancer implements INodeType {
           { name: "WebP", value: "webp" },
         ],
         displayOptions: { show: { operation: ["convert"] } },
+      },
+      {
+        displayName: "Format",
+        name: "generatedFormat",
+        type: "options",
+        default: "webp",
+        options: [
+          { name: "AVIF", value: "avif" },
+          { name: "JPEG", value: "jpeg" },
+          { name: "PNG", value: "png" },
+          { name: "WebP", value: "webp" },
+        ],
+        displayOptions: { show: { operation: ["optimize_generated"] } },
+      },
+      {
+        displayName: "Max Dimension",
+        name: "maxDimension",
+        type: "number",
+        typeOptions: { minValue: 0 },
+        default: 0,
+        description: "Cap on the longest side in pixels; 0 = no cap. Never upscales.",
+        displayOptions: { show: { operation: ["optimize_generated"] } },
       },
       {
         displayName: "Crop Mode",
@@ -176,7 +203,9 @@ export class Pictomancer implements INodeType {
         type: "collection",
         placeholder: "Add option",
         default: {},
-        displayOptions: { show: { operation: ["resize", "compress", "convert", "crop"] } },
+        displayOptions: {
+          show: { operation: ["resize", "compress", "convert", "crop", "optimize_generated"] },
+        },
         options: [
           {
             displayName: "Autorot",
@@ -266,7 +295,9 @@ export class Pictomancer implements INodeType {
             type: "number",
             typeOptions: { minValue: 1, maxValue: 100 },
             default: 85,
-            displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
+            displayOptions: {
+              show: { "/operation": ["resize", "compress", "convert", "optimize_generated"] },
+            },
           },
           {
             displayName: "Quality Target (SSIM)",
@@ -276,7 +307,7 @@ export class Pictomancer implements INodeType {
             default: 0.95,
             description:
               "Smallest file with SSIM >= target (0-1). Replaces Quality (q); jpeg, webp and avif only.",
-            displayOptions: { show: { "/operation": ["compress", "convert"] } },
+            displayOptions: { show: { "/operation": ["compress", "convert", "optimize_generated"] } },
           },
           {
             displayName: "Scale X",
@@ -307,7 +338,9 @@ export class Pictomancer implements INodeType {
             name: "strip",
             type: "boolean",
             default: false,
-            displayOptions: { show: { "/operation": ["resize", "compress", "convert"] } },
+            displayOptions: {
+              show: { "/operation": ["resize", "compress", "convert", "optimize_generated"] },
+            },
           },
         ],
       },
@@ -437,6 +470,11 @@ function collectParams(
   }
   if (operation === "convert") {
     params.format = ctx.getNodeParameter("format", itemIndex);
+  }
+  if (operation === "optimize_generated") {
+    params.format = ctx.getNodeParameter("generatedFormat", itemIndex);
+    const maxDimension = ctx.getNodeParameter("maxDimension", itemIndex, 0) as number;
+    if (maxDimension > 0) params.max_dimension = maxDimension;
   }
   return params;
 }

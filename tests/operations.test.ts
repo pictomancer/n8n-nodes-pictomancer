@@ -93,6 +93,16 @@ describe("buildOperationRequest", () => {
     expect(request.body).toEqual({ source: SOURCE, denoise: 2, equalize: true, sharpen: true });
   });
 
+  it("maps optimize_generated format and max_dimension", () => {
+    const request = buildOperationRequest("optimize_generated", SOURCE, {
+      format: "avif",
+      max_dimension: 1600,
+    });
+
+    expect(request.path).toBe("/v1/optimize_generated");
+    expect(request.body).toEqual({ source: SOURCE, format: "avif", max_dimension: 1600 });
+  });
+
   it("maps pipeline operation chains", () => {
     const operations = [{ type: "resize", params: { scale: "0.5" } }];
 

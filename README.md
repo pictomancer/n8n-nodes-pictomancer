@@ -40,6 +40,7 @@ Create a **Pictomancer API** credential:
 - **Denoise** (resize, compress, convert, crop, under Options): median denoise before the operation, radius 1-3 (window 3x3 to 7x7). Base price.
 - **Equalize** (resize, compress, convert, crop, under Options): auto-contrast (value-channel histogram equalisation, hue and saturation preserved) before the operation.
 - **Sharpen** (resize, compress, convert, crop, under Options): unsharp-mask sharpen after the operation.
+- Optimize AI-Generated: one-call web optimization of generator output (webp/avif/jpeg/png, max dimension, quality target)
 - **Pipeline** takes a JSON list of steps, e.g. `[{ "type": "resize", "params": { "scale": "0.5" } }, { "type": "convert", "params": { "format": "webp" } }]`.
 
 ## Development
