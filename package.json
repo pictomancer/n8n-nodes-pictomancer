@@ -47,7 +47,7 @@
   "devDependencies": {
     "@n8n/node-cli": "^0.42.2",
     "@types/node": "^26.2.0",
-    "eslint": "^9.39.5",
+    "eslint": "^10.9.0",
     "n8n-workflow": "^2.16.0",
     "typescript": "^5.4.0",
     "vitest": "^3.0.0"
