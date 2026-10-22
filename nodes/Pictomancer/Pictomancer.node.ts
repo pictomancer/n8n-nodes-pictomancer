@@ -51,6 +51,12 @@ export class Pictomancer implements INodeType {
             action: "Optimize an AI generated image for the web",
           },
           { name: "Pipeline", value: "pipeline", action: "Run an operation pipeline" },
+          {
+            name: "Remove Background",
+            value: "remove_background",
+            description: "Cut out the subject and return an image with a transparent background",
+            action: "Remove the background of an image",
+          },
           { name: "Resize", value: "resize", action: "Resize an image" },
         ],
       },
@@ -126,6 +132,19 @@ export class Pictomancer implements INodeType {
         default: 0,
         description: "Cap on the longest side in pixels; 0 = no cap. Never upscales.",
         displayOptions: { show: { operation: ["optimize_generated"] } },
+      },
+      {
+        displayName: "Format",
+        name: "removeBackgroundFormat",
+        type: "options",
+        default: "png",
+        description: "Output format; JPEG is not offered because it has no alpha channel",
+        options: [
+          { name: "AVIF", value: "avif" },
+          { name: "PNG", value: "png" },
+          { name: "WebP", value: "webp" },
+        ],
+        displayOptions: { show: { operation: ["remove_background"] } },
       },
       {
         displayName: "Crop Mode",
@@ -204,7 +223,9 @@ export class Pictomancer implements INodeType {
         placeholder: "Add option",
         default: {},
         displayOptions: {
-          show: { operation: ["resize", "compress", "convert", "crop", "optimize_generated"] },
+          show: {
+            operation: ["resize", "compress", "convert", "crop", "optimize_generated", "remove_background"],
+          },
         },
         options: [
           {
@@ -296,7 +317,9 @@ export class Pictomancer implements INodeType {
             typeOptions: { minValue: 1, maxValue: 100 },
             default: 85,
             displayOptions: {
-              show: { "/operation": ["resize", "compress", "convert", "optimize_generated"] },
+              show: {
+                "/operation": ["resize", "compress", "convert", "optimize_generated", "remove_background"],
+              },
             },
           },
           {
@@ -475,6 +498,9 @@ function collectParams(
     params.format = ctx.getNodeParameter("generatedFormat", itemIndex);
     const maxDimension = ctx.getNodeParameter("maxDimension", itemIndex, 0) as number;
     if (maxDimension > 0) params.max_dimension = maxDimension;
+  }
+  if (operation === "remove_background") {
+    params.format = ctx.getNodeParameter("removeBackgroundFormat", itemIndex);
   }
   return params;
 }

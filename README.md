@@ -41,6 +41,7 @@ Create a **Pictomancer API** credential:
 - **Equalize** (resize, compress, convert, crop, under Options): auto-contrast (value-channel histogram equalisation, hue and saturation preserved) before the operation.
 - **Sharpen** (resize, compress, convert, crop, under Options): unsharp-mask sharpen after the operation.
 - Optimize AI-Generated: one-call web optimization of generator output (webp/avif/jpeg/png, max dimension, quality target)
+- Remove Background: cut out the subject and return an image with a transparent background (png/webp/avif, optional q for webp/avif)
 - **Pipeline** takes a JSON list of steps, e.g. `[{ "type": "resize", "params": { "scale": "0.5" } }, { "type": "convert", "params": { "format": "webp" } }]`.
 
 ## Development
