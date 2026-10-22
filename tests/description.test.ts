@@ -48,6 +48,7 @@ describe("Pictomancer node description", () => {
       "crop",
       "optimize_generated",
       "pipeline",
+      "remove_background",
       "resize",
     ]);
   });

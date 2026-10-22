@@ -103,6 +103,13 @@ describe("buildOperationRequest", () => {
     expect(request.body).toEqual({ source: SOURCE, format: "avif", max_dimension: 1600 });
   });
 
+  it("maps remove_background format and q", () => {
+    const request = buildOperationRequest("remove_background", SOURCE, { format: "webp", q: 80 });
+
+    expect(request.path).toBe("/v1/remove_background");
+    expect(request.body).toEqual({ source: SOURCE, format: "webp", q: 80 });
+  });
+
   it("maps pipeline operation chains", () => {
     const operations = [{ type: "resize", params: { scale: "0.5" } }];
 

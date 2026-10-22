@@ -13,6 +13,7 @@ const OPERATION_PATHS: Record<string, string> = {
   crop: "/v1/crop",
   optimize_generated: "/v1/optimize_generated",
   pipeline: "/v1/pipeline",
+  remove_background: "/v1/remove_background",
 };
 
 /**
